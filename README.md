@@ -1,4 +1,4 @@
-# pomodoro_timer
+# DotMe Pomodoro Timer
 
 A new Flutter project.
 
