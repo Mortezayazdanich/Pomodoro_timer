@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/providers.dart';
+import '../models/pomodoro_session.dart';
+import 'dart:math' as math;
+import 'package:flutter/services.dart';
+
 
 class SettingsDialog extends ConsumerStatefulWidget {
   const SettingsDialog({super.key});
@@ -35,111 +39,129 @@ class _SettingsDialogState extends ConsumerState<SettingsDialog> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
-    return AlertDialog(
-      title: Row(
-        children: [
-          Icon(Icons.settings, color: theme.colorScheme.primary),
-          const SizedBox(width: 8),
-          const Text('Settings'),
-        ],
-      ),
-      content: Form(
-        key: _formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Timer Durations (minutes)',
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+
+    return Shortcuts(
+      shortcuts: <LogicalKeySet, Intent>{
+        LogicalKeySet(LogicalKeyboardKey.enter): const ActivateIntent(),
+      },
+      child: Actions(
+        actions: <Type, Action<Intent>>{
+          ActivateIntent: CallbackAction<ActivateIntent>(
+            onInvoke: (intent) {
+              _saveSettings(); // Calls the same method as Save button
+              return null;
+            },
+          ),
+        },
+        child: Focus(
+          autofocus: true, // Ensure key events are received
+          child: AlertDialog(
+            title: Row(
+              children: [
+                Icon(Icons.settings, color: theme.colorScheme.primary),
+                const SizedBox(width: 8),
+                const Text('Settings'),
+              ],
             ),
-            const SizedBox(height: 16),
-            
-            // Pomodoro duration
-            TextFormField(
-              controller: _pomodoroController,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                labelText: 'Pomodoro Session',
-                border: const OutlineInputBorder(),
-                prefixIcon: Icon(Icons.work, color: Colors.red.shade600),
-              ),
-              validator: _validateMinutes,
-            ),
-            const SizedBox(height: 16),
-            
-            // Short break duration
-            TextFormField(
-              controller: _shortBreakController,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                labelText: 'Short Break',
-                border: const OutlineInputBorder(),
-                prefixIcon: Icon(Icons.coffee, color: Colors.green.shade600),
-              ),
-              validator: _validateMinutes,
-            ),
-            const SizedBox(height: 16),
-            
-            // Long break duration
-            TextFormField(
-              controller: _longBreakController,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                labelText: 'Long Break',
-                border: const OutlineInputBorder(),
-                prefixIcon: Icon(Icons.bed, color: Colors.blue.shade600),
-              ),
-              validator: _validateMinutes,
-            ),
-            const SizedBox(height: 16),
-            
-            // Info text
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.primaryContainer.withOpacity(0.5),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Row(
+            content: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(
-                    Icons.info,
-                    color: theme.colorScheme.primary,
-                    size: 16,
+                  Text(
+                    'Timer Durations (minutes)',
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      'Long break occurs after every 4 Pomodoro sessions',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onPrimaryContainer,
-                      ),
+                  const SizedBox(height: 16),
+
+                  // Pomodoro duration
+                  TextFormField(
+                    controller: _pomodoroController,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      labelText: 'Pomodoro Session',
+                      border: const OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.work, color: Colors.red.shade600),
+                    ),
+                    validator: _validateMinutes,
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Short break duration
+                  TextFormField(
+                    controller: _shortBreakController,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      labelText: 'Short Break',
+                      border: const OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.coffee, color: Colors.green.shade600),
+                    ),
+                    validator: _validateMinutes,
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Long break duration
+                  TextFormField(
+                    controller: _longBreakController,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      labelText: 'Long Break',
+                      border: const OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.bed, color: Colors.blue.shade600),
+                    ),
+                    validator: _validateMinutes,
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Info text
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.primaryContainer.withOpacity(0.5),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.info,
+                          color: theme.colorScheme.primary,
+                          size: 16,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Long break occurs after every 4 Pomodoro sessions',
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: theme.colorScheme.onPrimaryContainer,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
             ),
-          ],
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: _resetToDefaults,
+                child: const Text('Reset to Defaults'),
+              ),
+              ElevatedButton(
+                onPressed: _saveSettings,
+                child: const Text('Save'),
+              ),
+            ],
+          ),
         ),
       ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
-        ),
-        TextButton(
-          onPressed: _resetToDefaults,
-          child: const Text('Reset to Defaults'),
-        ),
-        ElevatedButton(
-          onPressed: _saveSettings,
-          child: const Text('Save'),
-        ),
-      ],
     );
   }
 
@@ -179,6 +201,9 @@ class _SettingsDialogState extends ConsumerState<SettingsDialog> {
         shortBreakMinutes: shortBreakMinutes,
         longBreakMinutes: longBreakMinutes,
       );
+
+      // Reset timer to apply new settings
+      ref.read(timerProvider.notifier).resetTimer();
       
       Navigator.of(context).pop();
       
