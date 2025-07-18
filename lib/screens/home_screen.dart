@@ -5,6 +5,7 @@ import '../widgets/timer_widget.dart';
 import '../widgets/project_selector.dart';
 import '../widgets/dashboard_widget.dart';
 import '../widgets/settings_widget.dart';
+import '../widgets/theme_toggle.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -30,6 +31,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       appBar: AppBar(
         title: const Text('Pomodoro Timer'),
         actions: [
+          const ThemeToggle(),
+          const SizedBox(width: 8),
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () {
