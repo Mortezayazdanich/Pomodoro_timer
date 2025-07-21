@@ -21,13 +21,15 @@ class ProjectAdapter extends TypeAdapter<Project> {
       name: fields[1] as String,
       color: fields[2] as String,
       createdAt: fields[3] as DateTime,
+      timerDuration: fields[4] as int? ?? 1500, // <-- Default value
+      sessionType: fields[5] as String? ?? 'pomodoro',
     );
   }
 
   @override
   void write(BinaryWriter writer, Project obj) {
     writer
-      ..writeByte(4)
+      ..writeByte(6)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -35,7 +37,11 @@ class ProjectAdapter extends TypeAdapter<Project> {
       ..writeByte(2)
       ..write(obj.color)
       ..writeByte(3)
-      ..write(obj.createdAt);
+      ..write(obj.createdAt)
+      ..writeByte(4)
+      ..write(obj.timerDuration)
+      ..writeByte(5)
+      ..write(obj.sessionType);
   }
 
   @override

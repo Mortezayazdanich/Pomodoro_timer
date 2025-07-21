@@ -16,6 +16,7 @@ class PomodoroSessionAdapter extends TypeAdapter<PomodoroSession> {
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
+    final isCompleted = reader.read() as bool? ?? false; // Use default if null
     return PomodoroSession(
       id: fields[0] as String,
       projectId: fields[1] as String,
@@ -23,14 +24,15 @@ class PomodoroSessionAdapter extends TypeAdapter<PomodoroSession> {
       endTime: fields[3] as DateTime,
       duration: fields[4] as int,
       type: fields[5] as SessionType,
-      completed: fields[6] as bool,
+      completed: isCompleted,
+      isIncomplete: fields[7] as bool,
     );
   }
 
   @override
   void write(BinaryWriter writer, PomodoroSession obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(8)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -44,7 +46,9 @@ class PomodoroSessionAdapter extends TypeAdapter<PomodoroSession> {
       ..writeByte(5)
       ..write(obj.type)
       ..writeByte(6)
-      ..write(obj.completed);
+      ..write(obj.completed)
+      ..writeByte(7)
+      ..write(obj.isIncomplete);
   }
 
   @override

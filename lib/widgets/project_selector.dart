@@ -99,6 +99,7 @@ class AddProjectDialog extends ConsumerStatefulWidget {
 class _AddProjectDialogState extends ConsumerState<AddProjectDialog> {
   final _nameController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  final _focusNode = FocusNode();
   Color _selectedColor = Colors.blue;
 
   final List<Color> _availableColors = [
@@ -117,6 +118,7 @@ class _AddProjectDialogState extends ConsumerState<AddProjectDialog> {
   @override
   void dispose() {
     _nameController.dispose();
+    _focusNode.dispose();
     super.dispose();
   }
 

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_switch/flutter_switch.dart';
 import '../providers/providers.dart';
 
 
@@ -21,10 +20,10 @@ class ThemeToggle extends ConsumerWidget {
     }
 
     return GestureDetector(
-      onTap: () {
-        ref.read(themeModeProvider.notifier).state =
-            isDarkMode ? ThemeMode.light : ThemeMode.dark;
-      },
+              onTap: () {
+                ref.read(themeModeProvider.notifier).setThemeMode(
+                    themeMode == ThemeMode.light ? ThemeMode.dark : ThemeMode.light);
+              },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
         width: 60,

@@ -158,6 +158,7 @@ class TimerWidget extends ConsumerWidget {
     }
   }
 
+
   String _formatTime(int seconds) {
     final minutes = seconds ~/ 60;
     final remainingSeconds = seconds % 60;
@@ -200,7 +201,7 @@ class CircularProgressPainter extends CustomPainter {
     
     // Background circle
     final backgroundPaint = Paint()
-      ..color = color.withOpacity(0.2)
+      ..color = color.withValues(alpha: 0.2)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 8;
     

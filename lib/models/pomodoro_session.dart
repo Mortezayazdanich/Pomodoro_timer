@@ -22,8 +22,11 @@ class PomodoroSession extends HiveObject {
   @HiveField(5)
   SessionType type;
 
-  @HiveField(6)
+@HiveField(6)
   bool completed;
+
+  @HiveField(7)
+  bool isIncomplete;
 
   PomodoroSession({
     required this.id,
@@ -33,11 +36,12 @@ class PomodoroSession extends HiveObject {
     required this.duration,
     required this.type,
     required this.completed,
+    required this.isIncomplete,
   });
 
   @override
   String toString() {
-    return 'PomodoroSession(id: $id, projectId: $projectId, startTime: $startTime, endTime: $endTime, duration: $duration, type: $type, completed: $completed)';
+    return 'PomodoroSession(id: $id, projectId: $projectId, startTime: $startTime, endTime: $endTime, duration: $duration, type: $type, completed: $completed, isIncomplete: $isIncomplete)';
   }
 }
 

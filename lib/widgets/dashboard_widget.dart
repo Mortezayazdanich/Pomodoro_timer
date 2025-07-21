@@ -3,9 +3,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../providers/providers.dart';
 import '../models/pomodoro_session.dart';
+import '../screens/weekly_report_screen.dart';
+import '../models/project.dart';
 
 class DashboardWidget extends ConsumerWidget {
-  const DashboardWidget({super.key});
+const DashboardWidget({super.key});
+
+  void _navigateToWeeklyReport(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const WeeklyReportScreen()),
+    );
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -15,10 +24,16 @@ class DashboardWidget extends ConsumerWidget {
 
     // Group sessions by project
     final sessionsByProject = <String, List<PomodoroSession>>{};
+    final incompleteSessionsByProject = <String, List<PomodoroSession>>{};
     for (final session in todaysSessions) {
-      if (session.type == SessionType.work && session.completed) {
-        sessionsByProject.putIfAbsent(session.projectId, () => []);
-        sessionsByProject[session.projectId]!.add(session);
+      if (session.type == SessionType.work) {
+        if (session.completed) {
+          sessionsByProject.putIfAbsent(session.projectId, () => []);
+          sessionsByProject[session.projectId]!.add(session);
+        } else if (session.isIncomplete) {
+          incompleteSessionsByProject.putIfAbsent(session.projectId, () => []);
+          incompleteSessionsByProject[session.projectId]!.add(session);
+        }
       }
     }
 
@@ -66,7 +81,12 @@ class DashboardWidget extends ConsumerWidget {
                   final sessions = entry.value;
                   final project = projects.firstWhere(
                     (p) => p.id == projectId,
-                    orElse: () => projects.first,
+                    orElse: () => Project(
+                      id: projectId,
+                      name: 'Unknown Project',
+                      color: '0xFF9C27B0',
+                      createdAt: DateTime.now(),
+                    ),
                   );
                   
                   return Padding(
@@ -128,6 +148,11 @@ class DashboardWidget extends ConsumerWidget {
                 ],
               ),
             ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () => _navigateToWeeklyReport(context),
+              child: const Text('View Weekly Report'),
+            ),
           ],
         ),
       ),
@@ -156,7 +181,7 @@ class _ProjectProgressRow extends StatelessWidget {
         color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: theme.colorScheme.outline.withOpacity(0.2),
+          color: theme.colorScheme.outline.withValues(alpha: 0.2),
         ),
       ),
       child: Row(
@@ -236,7 +261,7 @@ class _SummaryItem extends StatelessWidget {
         Text(
           label,
           style: theme.textTheme.bodySmall?.copyWith(
-            color: color.withOpacity(0.8),
+            color: color.withValues(alpha: 0.8),
           ),
         ),
       ],

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/providers.dart';
-import '../models/pomodoro_session.dart';
-import 'dart:math' as math;
 import 'package:flutter/services.dart';
 
 
@@ -120,7 +118,7 @@ class _SettingsDialogState extends ConsumerState<SettingsDialog> {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: theme.colorScheme.primaryContainer.withOpacity(0.5),
+                      color: theme.colorScheme.primaryContainer.withValues(alpha: 0.5),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
@@ -201,6 +199,11 @@ class _SettingsDialogState extends ConsumerState<SettingsDialog> {
         shortBreakMinutes: shortBreakMinutes,
         longBreakMinutes: longBreakMinutes,
       );
+
+      // Updating Project specific timer settings
+      final newSessionType = ref.read(timerProvider).sessionType;
+      final newSeconds = pomodoroMinutes * 60;
+      ref.read(timerProvider.notifier).updateProjectTimerSettings(newSeconds, newSessionType);
 
       // Reset timer to apply new settings
       ref.read(timerProvider.notifier).resetTimer();

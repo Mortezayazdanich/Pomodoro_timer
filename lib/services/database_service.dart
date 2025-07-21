@@ -7,16 +7,34 @@ class DatabaseService {
   static const String _sessionsBoxName = 'sessions';
 
   static Future<void> initialize() async {
-    await Hive.initFlutter();
+    await Hive.initFlutter('pomodoro_timer');
     
-    // Register adapters
-    Hive.registerAdapter(ProjectAdapter());
-    Hive.registerAdapter(PomodoroSessionAdapter());
-    Hive.registerAdapter(SessionTypeAdapter());
+    // Register adapters (only if not already registered)
+    if (!Hive.isAdapterRegistered(0)) {
+      Hive.registerAdapter(ProjectAdapter());
+    }
+    if (!Hive.isAdapterRegistered(1)) {
+      Hive.registerAdapter(PomodoroSessionAdapter());
+    }
+    if (!Hive.isAdapterRegistered(2)) {
+      Hive.registerAdapter(SessionTypeAdapter());
+    }
     
-    // Open boxes
-    await Hive.openBox<Project>(_projectsBoxName);
-    await Hive.openBox<PomodoroSession>(_sessionsBoxName);
+    // Open boxes with error handling
+    try {
+      await Hive.openBox<Project>(_projectsBoxName);
+      await Hive.openBox<PomodoroSession>(_sessionsBoxName);
+    } catch (e) {
+      // If opening fails, try to close any existing boxes and reopen
+      try {
+        await Hive.close();
+        await Hive.openBox<Project>(_projectsBoxName);
+        await Hive.openBox<PomodoroSession>(_sessionsBoxName);
+      } catch (e2) {
+        print('Error initializing database: $e2');
+        rethrow;
+      }
+    }
   }
 
   static Box<Project> get projectsBox => Hive.box<Project>(_projectsBoxName);

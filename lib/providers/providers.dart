@@ -225,17 +225,56 @@ class TimerNotifier extends StateNotifier<TimerState> {
   }
 
   void setProject(Project project) {
-    final settings = ref.read(settingsProvider);
-    final seconds = _getSecondsForSessionType(SessionType.work, settings);
-    
+    // Update timer state
     state = state.copyWith(
       currentProject: project,
-      sessionType: SessionType.work,
-      remainingSeconds: seconds,
-      totalSeconds: seconds,
+      sessionType: _mapSessionTypeString(project.sessionType),
+      remainingSeconds: project.timerDuration,
+      totalSeconds: project.timerDuration,
       currentSession: 1,
       status: TimerStatus.idle,
     );
+
+    // Update global settings to match the selected project's timer config
+    ref.read(settingsProvider.notifier).updateSettings(
+      pomodoroMinutes: project.timerDuration ~/ 60, // convert seconds to minutes
+      // shortBreakMinutes and longBreakMinutes Will be added later:
+      // shortBreakMinutes: project.shortBreakDuration ~/ 60,
+      // longBreakMinutes: project.longBreakDuration ~/ 60,
+    );
+  }
+
+  // Helper to map string to SessionType
+  SessionType _mapSessionTypeString(String type) {
+    switch (type) {
+      case 'short_break':
+        return SessionType.shortBreak;
+      case 'long_break':
+        return SessionType.longBreak;
+      case 'pomodoro':
+      default:
+        return SessionType.work;
+    }
+  }
+
+  Map<String, dynamic>? _getProjectSettings(String projectId) {
+    // This is a stub function that should retrieve stored settings for a project.
+    // Replace with actual code to fetch from a database or similar storage.
+    return null;
+  }
+
+  Future<void> saveProjectSettings(String projectId, Map<String, dynamic> settings) async {
+    // This is a stub function that should save settings for a project.
+    // Replace with actual code to save to a database or similar storage.
+  }
+
+  void updateProjectTimerSettings(int seconds, SessionType sessionType) async {
+    final currentProject = state.currentProject;
+    if (currentProject != null) {
+      currentProject.timerDuration = seconds;
+      currentProject.sessionType = sessionType.name;
+      await currentProject.save(); // Persist with Hive
+    }
   }
 
   void _completeSession() {
@@ -293,6 +332,7 @@ class TimerNotifier extends StateNotifier<TimerState> {
 
   Future<void> _saveSession() async {
     if (_sessionStartTime == null || state.currentProject == null) return;
+    bool isIncomplete = state.remainingSeconds > 0;
     
     final session = PomodoroSession(
       id: const Uuid().v4(),
@@ -301,7 +341,8 @@ class TimerNotifier extends StateNotifier<TimerState> {
       endTime: DateTime.now(),
       duration: state.totalSeconds ~/ 60,
       type: state.sessionType,
-      completed: true,
+      completed: !isIncomplete,
+      isIncomplete: isIncomplete,
     );
     
     await DatabaseService.saveSession(session);
