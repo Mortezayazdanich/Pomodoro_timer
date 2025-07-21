@@ -5,9 +5,11 @@ import '../providers/providers.dart';
 import '../models/pomodoro_session.dart';
 import '../services/mini_timer_service.dart';
 import 'compact_timer_widget.dart';
+import '../models/project.dart';
 
 class MiniTimerWindow extends ConsumerStatefulWidget {
-  const MiniTimerWindow({super.key});
+  final String projectId;
+  const MiniTimerWindow({super.key, required this.projectId});
 
   @override
   ConsumerState<MiniTimerWindow> createState() => _MiniTimerWindowState();
@@ -43,6 +45,26 @@ class _MiniTimerWindowState extends ConsumerState<MiniTimerWindow> with WindowLi
 
   @override
   Widget build(BuildContext context) {
+    final projects = ref.watch(projectsProvider);
+    final project = projects.firstWhere(
+      (p) => p.id == widget.projectId,
+      orElse: () => Project(
+        id: '',
+        name: 'Unknown',
+        color: '0xFF9C27B0',
+        createdAt: DateTime.now(),
+        timerDuration: 1500,
+        sessionType: 'pomodoro',
+        shortBreakDuration: 300,
+        longBreakDuration: 900,
+      ),
+    );
+
+    if (project == null) {
+      return const Center(child: Text('Project not found'));
+    }
+  // Optionally, set the timer state to match the project's timer config
+  // ref.read(timerProvider.notifier).setProject(project);
     final timerState = ref.watch(timerProvider);
     final sessionColor = _getSessionColor(timerState.sessionType);
     

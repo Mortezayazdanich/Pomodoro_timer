@@ -23,6 +23,8 @@ class ProjectAdapter extends TypeAdapter<Project> {
       createdAt: fields[3] as DateTime,
       timerDuration: fields[4] as int? ?? 1500, // <-- Default value
       sessionType: fields[5] as String? ?? 'pomodoro',
+      shortBreakDuration: fields[6] as int? ?? 300, // <-- Default value
+      longBreakDuration: fields[7] as int? ?? 900, // <-- Default
     );
   }
 
@@ -41,7 +43,11 @@ class ProjectAdapter extends TypeAdapter<Project> {
       ..writeByte(4)
       ..write(obj.timerDuration)
       ..writeByte(5)
-      ..write(obj.sessionType);
+      ..write(obj.sessionType)
+      ..writeByte(6)
+      ..write(obj.shortBreakDuration)
+      ..writeByte(7)
+      ..write(obj.longBreakDuration);
   }
 
   @override

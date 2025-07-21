@@ -238,9 +238,8 @@ class TimerNotifier extends StateNotifier<TimerState> {
     // Update global settings to match the selected project's timer config
     ref.read(settingsProvider.notifier).updateSettings(
       pomodoroMinutes: project.timerDuration ~/ 60, // convert seconds to minutes
-      // shortBreakMinutes and longBreakMinutes Will be added later:
-      // shortBreakMinutes: project.shortBreakDuration ~/ 60,
-      // longBreakMinutes: project.longBreakDuration ~/ 60,
+      shortBreakMinutes: project.shortBreakDuration ~/ 60,
+      longBreakMinutes: project.longBreakDuration ~/ 60,
     );
   }
 
@@ -268,10 +267,12 @@ class TimerNotifier extends StateNotifier<TimerState> {
     // Replace with actual code to save to a database or similar storage.
   }
 
-  void updateProjectTimerSettings(int seconds, SessionType sessionType) async {
+  void updateProjectTimerSettings(int seconds, int shortBreak, int longBreak, SessionType sessionType) async {
     final currentProject = state.currentProject;
     if (currentProject != null) {
       currentProject.timerDuration = seconds;
+      currentProject.shortBreakDuration = shortBreak;
+      currentProject.longBreakDuration = longBreak;
       currentProject.sessionType = sessionType.name;
       await currentProject.save(); // Persist with Hive
     }

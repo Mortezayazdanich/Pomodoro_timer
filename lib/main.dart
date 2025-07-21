@@ -50,6 +50,14 @@ void miniMain(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
   await windowManager.ensureInitialized();
 
+  String? projectId;
+  if (args.isNotEmpty) {
+    try {
+      final routeData = jsonDecode(args.first);
+      projectId = routeData['projectId'] as String?;
+    } catch (_) {}
+  }
+
   windowManager.waitUntilReadyToShow(
     const WindowOptions(
       size: Size(280, 120),
@@ -63,22 +71,19 @@ void miniMain(List<String> args) async {
     },
   );
 
-  runApp(const ProviderScope(child: MiniTimerWindow()));
+  runApp(
+    ProviderScope(
+      child: MiniTimerWindow(projectId: projectId ?? ''),
+    ),
+  );
 }
 
 // Function to open the mini-timer window
-Future<void> openMiniTimerWindow() async {
-  final window = await DesktopMultiWindow.createWindow(
-    jsonEncode({
-      'route': '/mini_timer',
-      'arguments': {}
-    })
-  );
-
-  window
-    ..setFrame(const Offset(100, 100) & const Size(280, 120))
-    ..setTitle('Mini Timer')
-    ..show();
+Future<void> openMiniTimerWindow(WidgetRef ref) async {
+  final currentProject = ref.read(timerProvider).currentProject;
+  if (currentProject == null) return;
+  final args = jsonEncode({'projectId': currentProject.id});
+  await DesktopMultiWindow.createWindow(args);
 }
 
 class MyApp extends StatelessWidget {

@@ -22,6 +22,12 @@ class Project extends HiveObject {
   @HiveField(5)
   String sessionType; // e.g., 'pomodoro', 'short_break', etc.
 
+  @HiveField(6)
+  int shortBreakDuration; // in seconds or minutes
+
+  @HiveField(7)
+  int longBreakDuration; // in seconds or minutes
+
   Project({
     required this.id,
     required this.name,
@@ -29,10 +35,12 @@ class Project extends HiveObject {
     required this.createdAt,
     this.timerDuration = 1500, // default 25 min
     this.sessionType = 'pomodoro',
+    this.shortBreakDuration = 300, // default 5 min
+    this.longBreakDuration = 900, // default 15 min
   });
 
   @override
   String toString() {
-    return 'Project(id: $id, name: $name, color: $color, createdAt: $createdAt, timerDuration: $timerDuration, sessionType: $sessionType)';
+    return 'Project(id: $id, name: $name, color: $color, createdAt: $createdAt, timerDuration: $timerDuration, sessionType: $sessionType, shortBreakDuration: $shortBreakDuration, longBreakDuration: $longBreakDuration)';
   }
 }

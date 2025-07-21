@@ -203,7 +203,9 @@ class _SettingsDialogState extends ConsumerState<SettingsDialog> {
       // Updating Project specific timer settings
       final newSessionType = ref.read(timerProvider).sessionType;
       final newSeconds = pomodoroMinutes * 60;
-      ref.read(timerProvider.notifier).updateProjectTimerSettings(newSeconds, newSessionType);
+      final newShortBreak = shortBreakMinutes * 60;
+      final newLongBreak = longBreakMinutes * 60;
+      ref.read(timerProvider.notifier).updateProjectTimerSettings(newSeconds, newShortBreak, newLongBreak, newSessionType);
 
       // Reset timer to apply new settings
       ref.read(timerProvider.notifier).resetTimer();

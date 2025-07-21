@@ -49,14 +49,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
             actions: [
               // Mini Timer Pop-out button
-              IconButton(
-                icon: const Icon(Icons.picture_in_picture_alt),
-                onPressed: timerState.currentProject != null
-                    ? () => _openMiniTimer(context)
-                    : null,
-                tooltip: 'Open Mini Timer',
-              ),
-              const SizedBox(width: 8),
+              // IconButton(
+              //   icon: const Icon(Icons.picture_in_picture_alt),
+              //   onPressed: timerState.currentProject != null
+              //       ? () => _openMiniTimer(context)
+              //       : null,
+              //   tooltip: 'Open Mini Timer',
+              // ),
+              // const SizedBox(width: 8),
               // Theme toggle
               const ThemeToggle(),
               const SizedBox(width: 8),
