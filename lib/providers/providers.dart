@@ -397,3 +397,28 @@ final sessionsByProjectProvider = Provider<Map<String, List<PomodoroSession>>>((
   
   return result;
 });
+
+final weeklySessionsProvider = Provider<List<PomodoroSession>>((ref) {
+  final sessions = ref.watch(sessionsProvider);
+  final now = DateTime.now();
+  final startOfWeek = DateTime(now.year, now.month, now.day)
+      .subtract(Duration(days: now.weekday - 1)); // Monday
+  final endOfWeek = startOfWeek.add(const Duration(days: 7));
+  return sessions.where((session) =>
+    session.type == SessionType.work &&
+    session.completed &&
+    session.startTime.isAfter(startOfWeek.subtract(const Duration(seconds: 1))) &&
+    session.startTime.isBefore(endOfWeek)
+  ).toList();
+});
+
+final weeklySessionsByProjectProvider = Provider<Map<String, List<PomodoroSession>>>((ref) {
+  final weeklySessions = ref.watch(weeklySessionsProvider);
+  final projects = ref.watch(projectsProvider);
+
+  final Map<String, List<PomodoroSession>> result = {};
+  for (final project in projects) {
+    result[project.id] = weeklySessions.where((session) => session.projectId == project.id).toList();
+  }
+  return result;
+});
