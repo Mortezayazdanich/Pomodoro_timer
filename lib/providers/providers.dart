@@ -288,7 +288,7 @@ class TimerNotifier extends StateNotifier<TimerState> {
     state = state.copyWith(status: TimerStatus.completed);
     
     // Auto-transition to next session type
-    Timer(const Duration(seconds: 2), () {
+    Timer(const Duration(seconds: 1), () {
       _nextSession();
     });
   }

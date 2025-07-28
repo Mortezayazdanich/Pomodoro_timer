@@ -43,4 +43,17 @@ class Project extends HiveObject {
   String toString() {
     return 'Project(id: $id, name: $name, color: $color, createdAt: $createdAt, timerDuration: $timerDuration, sessionType: $sessionType, shortBreakDuration: $shortBreakDuration, longBreakDuration: $longBreakDuration)';
   }
+
+  factory Project.fromFields(List fields) {
+    return Project(
+      id: fields[0] as String,
+      name: fields[1] as String,
+      color: fields[2] as String,
+      createdAt: fields[3] as DateTime,
+      timerDuration: fields[4] as int? ?? 1500,
+      sessionType: fields[5] as String? ?? 'pomodoro',
+      shortBreakDuration: fields[6] as int? ?? 300,
+      longBreakDuration: fields[7] as int? ?? 900,
+    );
+  }
 }
