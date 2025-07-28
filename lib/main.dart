@@ -10,6 +10,8 @@ import 'widgets/mini_timer_window.dart';
 
 void main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
+  //Comment to Commit
+  
 
   // Initialize database
   await DatabaseService.initialize();
