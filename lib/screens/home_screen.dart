@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:window_manager/window_manager.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:io';
 import '../providers/providers.dart';
@@ -36,13 +35,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ref.read(projectsProvider.notifier).loadProjects();
       ref.read(sessionsProvider.notifier).loadSessions();
     });
-  }
-
-  Future<void> _openMiniTimer() async {
-    if (isDesktop) {
-      // Create a new window for the mini timer
-      await _launchMiniTimerWindow();
-    }
   }
 
   Future<void> _launchMiniTimerWindow() async {
@@ -90,15 +82,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
             actions: [
               // Mini timer button for desktop platforms
-              if (isDesktop)
+              /* if (isDesktop)
                 IconButton(
                   icon: const Icon(Icons.picture_in_picture_alt),
                   onPressed: timerState.currentProject != null
-                      ? () => _openMiniTimer(context)
+                      ? () => _launchMiniTimerWindow()
                       : null,
                   tooltip: 'Open Mini Timer',
                 ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 8), */
               // Theme toggle
               const ThemeToggle(),
               const SizedBox(width: 8),

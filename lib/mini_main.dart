@@ -9,7 +9,7 @@ void main() async {
   
   runApp(
     ProviderScope(
-      child: MiniTimerWindow(),
+      child: MiniTimerWindow(projectId: ''),
     ),
   );
 }
