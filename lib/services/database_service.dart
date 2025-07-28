@@ -1,4 +1,5 @@
 import 'package:hive_flutter/hive_flutter.dart';
+import 'dart:io';
 import '../models/project.dart';
 import '../models/pomodoro_session.dart';
 
@@ -20,18 +21,22 @@ class DatabaseService {
       Hive.registerAdapter(SessionTypeAdapter());
     }
     
-    // Open boxes with error handling
+    // Open boxes with enhanced error handling
     try {
       await Hive.openBox<Project>(_projectsBoxName);
       await Hive.openBox<PomodoroSession>(_sessionsBoxName);
     } catch (e) {
-      // If opening fails, try to close any existing boxes and reopen
+      print('Error opening Hive boxes: $e');
+      
+      // If opening fails due to corruption, try to clear the data directory and start fresh
       try {
         await Hive.close();
+        await _clearCorruptedData();
         await Hive.openBox<Project>(_projectsBoxName);
         await Hive.openBox<PomodoroSession>(_sessionsBoxName);
+        print('Successfully recovered from corrupted database');
       } catch (e2) {
-        print('Error initializing database: $e2');
+        print('Error initializing database after recovery attempt: $e2');
         rethrow;
       }
     }
@@ -93,5 +98,48 @@ class DatabaseService {
 
   static Future<void> dispose() async {
     await Hive.close();
+  }
+
+  // Helper method to clear corrupted Hive data
+  static Future<void> _clearCorruptedData() async {
+    print('Attempting to clear corrupted Hive data...');
+    
+    // Delete the specific box files if they exist
+    final boxNames = [_projectsBoxName, _sessionsBoxName];
+    
+    for (final boxName in boxNames) {
+      try {
+        // Try to delete the box if it exists
+        if (Hive.isBoxOpen(boxName)) {
+          await Hive.box(boxName).deleteFromDisk();
+        }
+      } catch (e) {
+        print('Error deleting box $boxName: $e');
+      }
+    }
+    
+    // Alternative approach: manually find and delete Hive files
+    try {
+      // Look for Hive files in common locations
+      final possibleDirs = [
+        Directory('${Directory.systemTemp.path}/pomodoro_timer'),
+        Directory('${Directory.current.path}/hive_boxes'),
+        Directory('${Directory.current.path}/.dart_tool/hive'),
+      ];
+      
+      for (final dir in possibleDirs) {
+        if (await dir.exists()) {
+          print('Found Hive directory: ${dir.path}');
+          try {
+            await dir.delete(recursive: true);
+            print('Deleted directory: ${dir.path}');
+          } catch (e) {
+            print('Could not delete directory ${dir.path}: $e');
+          }
+        }
+      }
+    } catch (e) {
+      print('Error during manual cleanup: $e');
+    }
   }
 }
