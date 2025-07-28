@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:window_manager/window_manager.dart';
+import 'package:flutter/foundation.dart';
+import 'dart:io';
 import '../providers/providers.dart';
 import '../widgets/timer_widget.dart';
 import '../widgets/project_selector.dart';
@@ -16,6 +19,15 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
+  bool get isDesktop {
+    if (kIsWeb) return false;
+    try {
+      return Platform.isWindows || Platform.isLinux || Platform.isMacOS;
+    } catch (e) {
+      return false;
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -24,6 +36,35 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ref.read(projectsProvider.notifier).loadProjects();
       ref.read(sessionsProvider.notifier).loadSessions();
     });
+  }
+
+  Future<void> _openMiniTimer() async {
+    if (isDesktop) {
+      // Create a new window for the mini timer
+      await _launchMiniTimerWindow();
+    }
+  }
+
+  Future<void> _launchMiniTimerWindow() async {
+    // For now, we'll show a dialog indicating the mini timer would open
+    // In a full implementation, you'd need to use a package like 'desktop_multi_window'
+    // or create a separate process/isolate to handle multiple windows
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Mini Timer'),
+        content: const Text(
+          'Mini timer functionality requires multi-window support. '
+          'This feature will be available when the app is fully built for desktop.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -48,15 +89,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ],
             ),
             actions: [
-              // Mini Timer Pop-out button
-              // IconButton(
-              //   icon: const Icon(Icons.picture_in_picture_alt),
-              //   onPressed: timerState.currentProject != null
-              //       ? () => _openMiniTimer(context)
-              //       : null,
-              //   tooltip: 'Open Mini Timer',
-              // ),
-              // const SizedBox(width: 8),
+              // Mini timer button for desktop platforms
+              if (isDesktop)
+                IconButton(
+                  icon: const Icon(Icons.picture_in_picture_alt),
+                  onPressed: timerState.currentProject != null
+                      ? () => _openMiniTimer(context)
+                      : null,
+                  tooltip: 'Open Mini Timer',
+                ),
+              const SizedBox(width: 8),
               // Theme toggle
               const ThemeToggle(),
               const SizedBox(width: 8),

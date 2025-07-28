@@ -207,6 +207,14 @@ class _AddProjectDialogState extends ConsumerState<AddProjectDialog> {
       final colorValue = _selectedColor.value.toString();
       
       await ref.read(projectsProvider.notifier).addProject(name, colorValue);
+
+      // Get the latest project from the list and set it as active
+      final projects = ref.read(projectsProvider);
+      final lastProject = projects.isNotEmpty ? projects.last : null;
+
+      if (lastProject != null) {
+        ref.read(timerProvider.notifier).setProject(lastProject);
+      }
       
       if (mounted) {
         Navigator.of(context).pop();
